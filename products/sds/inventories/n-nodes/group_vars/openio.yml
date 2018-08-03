@@ -16,15 +16,26 @@ openio_ecd: true
 openio_bind_interface: "{{ ansible_default_ipv4.alias }}"
 openio_bind_address: "{{ hostvars[inventory_hostname]['ansible_' ~ openio_bind_interface]['ipv4']['address'] }}"
 
+openio_bind_virtual_address: "{{ hostvars['node1']['openio_bind_address'] }}"
+
 # S3 users
 openio_oioswift_users:
   - name: "demo:demo"
     password: "DEMO_PASS"
     roles:
       - admin
+openio_s3_region: "us-east-1"
 
 # sysctl
 openio_manage_sysctl: true
+
+# passwords
+openio_database_root_password: ROOT_PASS
+openio_database_keystone_password: KEYSTONE_PASS
+openio_database_sst_password: SST_PASS
+openio_keystone_admin_password: ADMIN_PASS
+openio_keystone_swift_password: SWIFT_PASS
+openio_keystone_demo_password: DEMO_PASS
 
 # Account
 default_account: openio

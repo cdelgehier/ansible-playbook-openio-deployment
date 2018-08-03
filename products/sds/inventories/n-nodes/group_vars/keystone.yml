@@ -1,0 +1,31 @@
+---
+openio_memcached_bind_address: "{{ openio_bind_address }}"
+openio_keystone_bind_address: "{{ openio_bind_address }}"
+openio_keystone_config_cache_memcache_servers: "{{ groups['keystone'] \
+  | map('extract', hostvars, ['openio_bind_address']) \
+  | join(':6019,') }}:6019"
+openio_keystone_database_engine: mysql
+openio_keystone_database_mysql_connection_user: keystone
+openio_keystone_database_mysql_connection_password: "{{ openio_database_keystone_password }}"
+openio_keystone_database_mysql_connection_address:
+  "{{ hostvars[inventory_hostname]['openio_bind_address'] if 'galera' in group_names else \
+  groups['galera'] | map('extract', hostvars, ['openio_bind_address']) | list | random }}"
+openio_keystone_database_mysql_connection_database: keystone
+openio_keystone_nodes_group: keystone
+
+keystone-wsgi-public:
+  http-socket: "{{ hostvars[inventory_hostname]['openio_bind_address'] }}:5000"
+keystone-wsgi-admin:
+  http-socket: "{{ hostvars[inventory_hostname]['openio_bind_address'] }}:35357"
+openio_keystone_services_to_bootstrap:
+  - name: keystone
+    user: admin
+    password: "{{ openio_keystone_admin_password }}"
+    project: admin
+    role: admin
+    regionid: "{{ openio_s3_region }}"
+    adminurl: "http://{{ openio_bind_virtual_address }}:35357"
+    publicurl: "http://{{ openio_bind_virtual_address }}:5000"
+    internalurl: "http://{{ openio_bind_virtual_address }}:5000"
+
+...

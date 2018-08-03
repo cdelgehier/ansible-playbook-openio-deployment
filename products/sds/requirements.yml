@@ -38,4 +38,12 @@
 - src: https://github.com/geerlingguy/ansible-role-ntp
   version: ff09dda458223e2d82ed5a6bfae30dace8b19b3b
   name: ntp
+
+- src: https://github.com/open-io/ansible-role-openio-keystone
+  version: e4be8f11af476dd6280feb78b6dfd064f67b8e3a
+  name: keystone
+
+- src: https://github.com/open-io/ansible-role-openio-galera
+  version: d71a1587f49df95c2bbbfcef6a090548ddff3f31
+  name: galera
 ...

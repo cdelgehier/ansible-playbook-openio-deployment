@@ -2,7 +2,48 @@
 openio_memcached_bind_address: "{{ openio_bind_address }}"
 openio_oioswift_bind_address: "{{ openio_bind_address }}"
 openio_oioswift_sds_proxy_namespace: "{{ namespace }}"
-openio_oioswift_pipeline: "{{ pipeline_tempauth }}"
-openio_oioswift_filter_tempauth:
-  "{{ {'use': 'egg:oioswift#tempauth'} | combine(openio_oioswift_users | dict_to_tempauth) }}"
+openio_oioswift_pipeline: "{{ pipeline_keystone }}"
+
+openio_oioswift_filter_authtoken:
+  paste.filter_factory: keystonemiddleware.auth_token:filter_factory
+  auth_type: password
+  auth_url: "http://{{ openio_bind_virtual_address }}:35357"
+  www_authenticate_uri: "http://{{ openio_bind_virtual_address }}:5000"
+  insecure: "True"
+  region_name: "{{ openio_s3_region }}"
+  project_domain_id: default
+  user_domain_id: default
+  project_name: service
+  username: swift
+  password: "{{ openio_keystone_swift_password }}"
+  delay_auth_decision: "True"
+  include_service_catalog: "False"
+  memcached_servers:
+    "{{ groups['keystone'] \
+    | map('extract', hostvars, ['openio_bind_address'])\
+    | join(':6019,') }}:6019"
+  cache: swift.cache
+  token_cache_time: 300
+  revocation_cache_time: 60
+  memcache_security_strategy: ENCRYPT
+  memcache_secret_key: memcache_secret_key
+
+openio_oioswift_filter_s3token:
+  use: "egg:swift3#s3token"
+  delay_auth_decision: "True"
+  auth_uri: "http://{{ openio_bind_virtual_address }}:35357/"
+
+openio_oioswift_filter_swift3:
+  use: "egg:swift3#swift3"
+  force_swift_request_proxy_log: true
+  s3_acl: true
+  location: "{{ openio_s3_region }}"
+
+openio_oioswift_filter_cache:
+  use: "egg:swift#memcache"
+  memcache_servers:
+    "{{ groups['oioswift'] \
+    | map('extract', hostvars, ['openio_bind_address'])\
+    | join(':6019,') }}:6019"
+  memcache_max_connections: 500
 ...
