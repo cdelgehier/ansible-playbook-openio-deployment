@@ -3,7 +3,7 @@
   hosts: localhost
   any_errors_fatal: true
   max_fail_percentage: 0
-  gather_facts: true
+  gather_facts: yes
   become: true
   environment: "{{ openio_environment }}"
 
